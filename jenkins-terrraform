@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['plan', 'apply', 'destroy'],
+            description: 'Select Terraform action to perform'
+        )
+    }
+
+    stages {
+        stage('Cloning GitHub Repo') {
+            steps {
+                checkout scmGit(
+                    branches: [[name: '*/main']],
+                    extensions: [],
+                    userRemoteConfigs: [[url: 'https://github.com/Rohan-9009/Terraform-automation.git']]
+                )
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                sh 'terraform init -reconfigure'
+            }
+        }
+
+        stage('Terraform Action') {
+            steps {
+                echo "Terraform action selected: ${params.ACTION}"
+                script {
+                    if (params.ACTION == 'plan') {
+                        sh 'terraform plan'
+                    } else if (params.ACTION == 'apply') {
+                        sh 'terraform apply -auto-approve'
+                    } else if (params.ACTION == 'destroy') {
+                        sh 'terraform destroy -auto-approve'
+                    } else {
+                        error("Invalid action selected: ${params.ACTION}")
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline execution completed.'
+        }
+    }
+}

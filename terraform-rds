@@ -1,0 +1,37 @@
+provider "aws" {
+  region = "ap-south-1"
+}
+
+resource "aws_db_subnet_group" "rds_subnet_group" {
+  name       = "rds-subnet-group"
+  subnet_ids = ["subnet-0abc1234def567890", "subnet-0def1234abc567890"]
+
+  tags = {
+    Name = "RDS-Subnet-Group"
+  }
+}
+
+resource "aws_db_instance" "my_rds" {
+  identifier             = "interview-mysql-db"
+  allocated_storage      = 20
+  engine                 = "mysql"
+  engine_version         = "8.0"
+  instance_class         = "db.t3.micro"
+  db_name                = "interviewdb"
+  username               = "admin"
+  password               = "Password123!"
+  publicly_accessible    = false
+  skip_final_snapshot    = true
+  multi_az               = false
+  db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
+  vpc_security_group_ids = ["sg-0a1b2c3d4e5f67890"]
+
+  tags = {
+    Name        = "Interview-RDS"
+    Environment = "Dev"
+  }
+}
+
+output "rds_endpoint" {
+  value = aws_db_instance.my_rds.endpoint
+}

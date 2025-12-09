@@ -1,0 +1,28 @@
+provider "aws" {
+  region = "ap-south-1"
+}
+
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = "interview-demo-s3-bucket-rohan"
+
+  tags = {
+    Name        = "Interview-S3"
+    Environment = "Dev"
+  }
+}
+
+resource "aws_s3_bucket_versioning" "versioning" {
+  bucket = aws_s3_bucket.my_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+output "bucket_name" {
+  value = aws_s3_bucket.my_bucket.bucket
+}
+
+output "bucket_arn" {
+  value = aws_s3_bucket.my_bucket.arn
+}

@@ -1,0 +1,46 @@
+deployment.yml
+
+
+apiVersion: app/v1
+kind: Deployment
+metadata:
+     name: DFB-Deployment
+     labeles: 
+          app: DFB
+          env: prod
+spec:
+   template:
+     metadata:
+        labeles:
+            app: DFB
+            env: prod
+     spec: 
+       containers:
+             -name: nginx-contianer
+              imge: nginx:latest
+              ports:
+                 -containerport: 8070
+
+
+       replicas: 3
+       selector:
+        matchlabels:
+              app: DFB
+              env: prod
+       
+
+---
+apiVersion: v1
+kind: service
+metadata:
+    name: DFB-ssvc
+spec:
+selector:
+     app:DFB
+
+ports:
+
+  protocol: "TCP"
+  port: 8070
+  targetport: 8070
+  type: loadbalancer
